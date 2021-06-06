@@ -88,6 +88,7 @@ export class FileBuilder {
   private verifyRequestFromBuild(type: string): SnowpackBuiltFile | undefined {
     const possibleExtensions = this.urls.map((url) => path.extname(url));
     if (!possibleExtensions.includes(type))
+      console.log("errorrrrin'!")
       throw new Error(
         `${this.loc} - Requested content "${type}" but only built ${possibleExtensions.join(', ')}`,
       );

@@ -197,7 +197,7 @@ function sendResponseFile(
 }
 
 function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
-  const contentType = mime.contentType(path.extname(req.url!) || '.html');
+  const contentType = mime.contentType(extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
     'Accept-Ranges': 'bytes',
@@ -250,6 +250,20 @@ function getServerRuntime(
     });
   }
   return runtime;
+}
+
+// By default, node takes the "extension" of the folder before the last trailing
+// slash as the extension of a path. This prevents
+// `/path/to/folder.with.periods/` from resolving to
+// `/path/to/folder.with.periods/index.html`
+// (https://github.com/snowpackjs/snowpack/issues/3414), so we explicitly
+// account for that case.
+function extname(resourcePath: string): string {
+  // We explicitly handle URLs as well as files:
+  if (resourcePath.endsWith("/") || resourcePath.endsWith(path.sep)) {
+    return ""
+  }
+  return path.extname(resourcePath);
 }
 
 export async function startServer(
@@ -420,7 +434,7 @@ export async function startServer(
       for (const ext of outputExts) {
         if (basename.endsWith(ext)) return ext;
       }
-      return path.extname(basename);
+      return extname(basename);
     };
   }
 
@@ -609,7 +623,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(reqPath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = path.extname(resourcePath) || '.html';
+        resourceType = extname(resourcePath) || '.html';
       }
       attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
@@ -621,7 +635,7 @@ export async function startServer(
       }
       foundFile = {
         loc: attemptedFileLoc,
-        type: path.extname(reqPath),
+        type: extname(reqPath),
         isStatic: false,
         isResolve: true,
       };
@@ -634,7 +648,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = path.extname(resourcePath) || '.html';
+        resourceType = extname(resourcePath) || '.html';
       }
       attemptedFileLoc =
         fileToUrlMapping.key(resourcePath) ||
@@ -663,7 +677,7 @@ export async function startServer(
       // be the interface for those response types.
       foundFile = {
         loc: attemptedFileLoc,
-        type: path.extname(reqPath) || '.html',
+        type: extname(reqPath) || '.html',
         isStatic: mountEntry.static,
         isResolve: mountEntry.resolve,
       };
