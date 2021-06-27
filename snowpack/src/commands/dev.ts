@@ -197,7 +197,7 @@ function sendResponseFile(
 }
 
 function sendResponseError(req: http.IncomingMessage, res: http.ServerResponse, status: number) {
-  const contentType = mime.contentType(extname(req.url!) || '.html');
+  const contentType = mime.contentType(path.extname(req.url!) || '.html');
   const headers: Record<string, string> = {
     'Access-Control-Allow-Origin': '*',
     'Accept-Ranges': 'bytes',
@@ -434,7 +434,7 @@ export async function startServer(
       for (const ext of outputExts) {
         if (basename.endsWith(ext)) return ext;
       }
-      return extname(basename);
+      return path.extname(basename);
     };
   }
 
@@ -623,7 +623,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(reqPath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = extname(resourcePath) || '.html';
+        resourceType = path.extname(resourcePath) || '.html';
       }
       attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
@@ -635,7 +635,7 @@ export async function startServer(
       }
       foundFile = {
         loc: attemptedFileLoc,
-        type: extname(reqPath),
+        type: path.extname(reqPath),
         isStatic: false,
         isResolve: true,
       };
@@ -648,7 +648,7 @@ export async function startServer(
       let attemptedFileLoc = fileToUrlMapping.key(resourcePath);
       if (!attemptedFileLoc) {
         resourcePath = reqPath.replace(/\.map$/, '').replace(/\.proxy\.js$/, '');
-        resourceType = extname(resourcePath) || '.html';
+        resourceType = path.extname(resourcePath) || '.html';
       }
       attemptedFileLoc =
         fileToUrlMapping.key(resourcePath) ||
@@ -677,7 +677,7 @@ export async function startServer(
       // be the interface for those response types.
       foundFile = {
         loc: attemptedFileLoc,
-        type: extname(reqPath) || '.html',
+        type: path.extname(reqPath) || '.html',
         isStatic: mountEntry.static,
         isResolve: mountEntry.resolve,
       };
